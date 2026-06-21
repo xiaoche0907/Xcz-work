@@ -28,7 +28,7 @@ interface AppState {
   activeBoardId: string | null
   selectedAssetIds: string[]
   searchQuery: string
-  sortKey: 'createdAt' | 'fileName' | 'fileSize' | 'width' | 'height'
+  sortKey: 'createdAt' | 'fileName' | 'fileSize' | 'dimension' | 'duration' | 'rating' | 'importDate' | 'updatedAt' | 'createDate' | 'modifiedDate' | 'takenDate'
   sortOrder: 'asc' | 'desc'
   isRightSidebarOpen: boolean
   isInternalDragging: boolean
@@ -109,7 +109,7 @@ interface AppState {
   setGrayscale: (isGray: boolean) => void
 
   // 扩展布局与过滤选项状态
-  layoutMode: 'grid' | 'list'
+  layoutMode: 'waterfall' | 'grid' | 'adaptive' | 'list'
   foldersOnTop: boolean
   showSubfolderContents: boolean
   showFileSize: boolean
@@ -128,7 +128,7 @@ interface AppState {
   filterRating: number | null
 
   // 扩展布局与过滤选项方法
-  setLayoutMode: (mode: 'grid' | 'list') => void
+  setLayoutMode: (mode: 'waterfall' | 'grid' | 'adaptive' | 'list') => void
   setFoldersOnTop: (val: boolean) => void
   setShowSubfolderContents: (val: boolean) => void
   setShowFileSize: (val: boolean) => void
@@ -187,7 +187,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   isGrayscale: false,
 
   // 扩展状态初值
-  layoutMode: 'grid',
+  layoutMode: 'waterfall',
   foldersOnTop: true,
   showSubfolderContents: false,
   showFileSize: true,

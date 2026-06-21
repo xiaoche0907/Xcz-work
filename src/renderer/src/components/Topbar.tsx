@@ -70,17 +70,29 @@ export const Topbar: React.FC = () => {
   const getSortName = (key: string) => {
     switch (key) {
       case 'createdAt':
-        return '创建时间'
+        return '添加时间'
       case 'fileName':
-        return '文件名称'
+        return '文件名'
       case 'fileSize':
         return '文件大小'
-      case 'width':
-        return '宽度'
-      case 'height':
-        return '高度'
-      default:
+      case 'dimension':
+        return '尺寸'
+      case 'duration':
+        return '时长'
+      case 'rating':
+        return '评分'
+      case 'importDate':
+        return '导入时间'
+      case 'updatedAt':
+        return '更新时间'
+      case 'createDate':
         return '创建时间'
+      case 'modifiedDate':
+        return '修改时间'
+      case 'takenDate':
+        return '拍摄时间'
+      default:
+        return '添加时间'
     }
   }
 
@@ -192,6 +204,18 @@ export const Topbar: React.FC = () => {
                   <div className="absolute left-full top-0 ml-1 w-32 rounded-md bg-white py-1 shadow-lg">
                     <button
                       onClick={() => {
+                        setLayoutMode('waterfall')
+                        setIsLayoutMenuOpen(false)
+                      }}
+                      className="flex w-full items-center px-3 py-1.5 hover:bg-app-hover"
+                    >
+                      <span className="w-4 shrink-0 font-bold">
+                        {layoutMode === 'waterfall' ? '✓' : ''}
+                      </span>
+                      <span>瀑布流</span>
+                    </button>
+                    <button
+                      onClick={() => {
                         setLayoutMode('grid')
                         setIsLayoutMenuOpen(false)
                       }}
@@ -200,7 +224,19 @@ export const Topbar: React.FC = () => {
                       <span className="w-4 shrink-0 font-bold">
                         {layoutMode === 'grid' ? '✓' : ''}
                       </span>
-                      <span>网格视图</span>
+                      <span>网格</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setLayoutMode('adaptive')
+                        setIsLayoutMenuOpen(false)
+                      }}
+                      className="flex w-full items-center px-3 py-1.5 hover:bg-app-hover"
+                    >
+                      <span className="w-4 shrink-0 font-bold">
+                        {layoutMode === 'adaptive' ? '✓' : ''}
+                      </span>
+                      <span>自适应</span>
                     </button>
                     <button
                       onClick={() => {
@@ -212,7 +248,7 @@ export const Topbar: React.FC = () => {
                       <span className="w-4 shrink-0 font-bold">
                         {layoutMode === 'list' ? '✓' : ''}
                       </span>
-                      <span>列表视图</span>
+                      <span>列表</span>
                     </button>
                   </div>
                 )}
@@ -230,8 +266,8 @@ export const Topbar: React.FC = () => {
                   <span className="text-gray-400 font-mono text-[10px] ml-auto">›</span>
                 </button>
                 {hoverSubmenu === 'sortKey' && (
-                  <div className="absolute left-full top-0 ml-1 w-32 rounded-md bg-white py-1 shadow-lg">
-                    {['createdAt', 'fileName', 'fileSize', 'width', 'height'].map((key) => (
+                  <div className="absolute left-full top-0 ml-1 w-36 rounded-md bg-white py-1 shadow-lg max-h-[300px] overflow-y-auto menu-scrollbar">
+                    {['createdAt', 'fileName', 'fileSize', 'dimension', 'duration', 'rating', 'importDate', 'updatedAt', 'createDate', 'modifiedDate', 'takenDate'].map((key) => (
                       <button
                         key={key}
                         onClick={() => {
@@ -240,7 +276,7 @@ export const Topbar: React.FC = () => {
                         }}
                         className="flex w-full items-center px-3 py-1.5 hover:bg-app-hover"
                       >
-                        <span className="w-4 shrink-0 font-bold">
+                        <span className="w-4 shrink-0 font-bold text-[11px] text-gray-700">
                           {sortKey === key ? '✓' : ''}
                         </span>
                         <span>{getSortName(key)}</span>

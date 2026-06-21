@@ -496,15 +496,48 @@ export const AssetGrid: React.FC<AssetGridProps> = () => {
     }
 
     result.sort((assetA, assetB) => {
-      let valueA: string | number = assetA[sortKey]
-      let valueB: string | number = assetB[sortKey]
+      let valueA: any
+      let valueB: any
 
-      if (sortKey === 'fileName') {
-        valueA = assetA.fileName.toLowerCase()
-        valueB = assetB.fileName.toLowerCase()
-      } else if (sortKey === 'createdAt') {
-        valueA = new Date(assetA.createdAt).getTime()
-        valueB = new Date(assetB.createdAt).getTime()
+      switch (sortKey) {
+        case 'fileName':
+          valueA = assetA.fileName.toLowerCase()
+          valueB = assetB.fileName.toLowerCase()
+          break
+        case 'fileSize':
+          valueA = assetA.fileSize || 0
+          valueB = assetB.fileSize || 0
+          break
+        case 'dimension':
+          valueA = (assetA.width || 0) * (assetA.height || 0)
+          valueB = (assetB.width || 0) * (assetB.height || 0)
+          break
+        case 'duration':
+          valueA = (assetA as any).duration || 0
+          valueB = (assetB as any).duration || 0
+          break
+        case 'rating':
+          valueA = assetA.rating || 0
+          valueB = assetB.rating || 0
+          break
+        case 'createdAt':
+        case 'importDate':
+        case 'createDate':
+          valueA = new Date(assetA.createdAt).getTime()
+          valueB = new Date(assetB.createdAt).getTime()
+          break
+        case 'updatedAt':
+        case 'modifiedDate':
+          valueA = new Date(assetA.updatedAt).getTime()
+          valueB = new Date(assetB.updatedAt).getTime()
+          break
+        case 'takenDate':
+          valueA = new Date((assetA as any).takenDate || assetA.createdAt).getTime()
+          valueB = new Date((assetB as any).takenDate || assetB.createdAt).getTime()
+          break
+        default:
+          valueA = new Date(assetA.createdAt).getTime()
+          valueB = new Date(assetB.createdAt).getTime()
       }
 
       if (valueA < valueB) return sortOrder === 'asc' ? -1 : 1
@@ -1228,9 +1261,178 @@ export const AssetGrid: React.FC<AssetGridProps> = () => {
           <h3 className="text-[14px] font-medium text-gray-700">暂无内容</h3>
           <p className="mt-2 text-[12px]">可创建文件夹，或点击顶部加号导入素材。</p>
         </div>
-      ) : layoutMode === 'grid' ? (
+      ) : layoutMode === 'waterfall' ? (
+        // 瀑布流布局 (Waterfall Layout)
         <div
-          className="grid justify-start gap-x-12 gap-y-8"
+          className="w-full animate-in fade-in duration-200"
+          style={{
+            columnWidth: `${thumbSize}px`,
+            columnGap: '24px'
+          }}
+        >
+          {visibleFolders.map((folder) => (
+            <div
+              key={folder.id}
+              style={{ breakInside: 'avoid' }}
+              className="mb-6 inline-block w-full animate-in fade-in duration-200"
+            >
+              <FolderCard
+                folder={folder}
+                assets={assets}
+                folders={folders}
+                width={thumbSize}
+                onOpen={() => handleOpenFolder(folder.id)}
+                onContextMenu={(event) => handleFolderContextMenu(event, folder.id)}
+                isDragOver={dragOverFolderId === folder.id}
+                onDragOver={(e) => {
+                  if (isInternalDragging) {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    e.dataTransfer.dropEffect = 'move'
+                    if (dragOverFolderId !== folder.id) {
+                      setDragOverFolderId(folder.id)
+                    }
+                  }
+                }}
+                onDragLeave={() => {
+                  if (dragOverFolderId === folder.id) {
+                    setDragOverFolderId(null)
+                  }
+                }}
+                onDrop={async (e) => {
+                  if (dragOverFolderId === folder.id) {
+                    setDragOverFolderId(null)
+                  }
+                  if (isInternalDragging) {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    try {
+                      let assetIds = useAppStore.getState().selectedAssetIds
+                      const dataStr = e.dataTransfer.getData('application/json')
+                      if (dataStr) {
+                        const parsed = JSON.parse(dataStr) as { assetIds: string[] }
+                        if (parsed.assetIds && parsed.assetIds.length > 0) {
+                          assetIds = parsed.assetIds
+                        }
+                      }
+                      if (assetIds && assetIds.length > 0) {
+                        await moveAssetsToFolder(assetIds, folder.id)
+                      }
+                    } catch (err) {
+                      console.error('瀑布流视图文件夹拖拽移动素材失败:', err)
+                    }
+                    setInternalDragging(false)
+                  }
+                }}
+              />
+            </div>
+          ))}
+
+          {filteredAssets.map((asset) => (
+            <div
+              key={asset.id}
+              style={{ breakInside: 'avoid' }}
+              className="mb-6 inline-block w-full"
+            >
+              <AssetCard
+                asset={asset}
+                isSelected={selectedAssetIds.includes(asset.id)}
+                onClick={(event) => handleAssetClick(event, asset.id)}
+                onDoubleClick={() => setViewerAsset(asset, filteredAssets)}
+                onFavoriteClick={(event) => {
+                  event.stopPropagation()
+                  toggleFavorite(asset.id)
+                }}
+                onContextMenu={(event) => handleContextMenu(event, asset.id)}
+                thumbnailSize={thumbSize}
+                layoutMode="waterfall"
+                isEditing={editingAssetId === asset.id}
+                onRename={(newName) => handleRenameAsset(asset.id, newName)}
+                onCancelRename={() => setEditingAssetId(null)}
+              />
+            </div>
+          ))}
+        </div>
+      ) : layoutMode === 'adaptive' ? (
+        // 自适应等高布局 (Adaptive Layout)
+        <div className="flex flex-wrap gap-x-6 gap-y-6 justify-start w-full animate-in fade-in duration-200">
+          {visibleFolders.map((folder) => (
+            <FolderCard
+              key={folder.id}
+              folder={folder}
+              assets={assets}
+              folders={folders}
+              width={thumbSize}
+              onOpen={() => handleOpenFolder(folder.id)}
+              onContextMenu={(event) => handleFolderContextMenu(event, folder.id)}
+              isDragOver={dragOverFolderId === folder.id}
+              onDragOver={(e) => {
+                if (isInternalDragging) {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  e.dataTransfer.dropEffect = 'move'
+                  if (dragOverFolderId !== folder.id) {
+                    setDragOverFolderId(folder.id)
+                  }
+                }
+              }}
+              onDragLeave={() => {
+                if (dragOverFolderId === folder.id) {
+                  setDragOverFolderId(null)
+                }
+              }}
+              onDrop={async (e) => {
+                if (dragOverFolderId === folder.id) {
+                  setDragOverFolderId(null)
+                }
+                if (isInternalDragging) {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  try {
+                    let assetIds = useAppStore.getState().selectedAssetIds
+                    const dataStr = e.dataTransfer.getData('application/json')
+                    if (dataStr) {
+                      const parsed = JSON.parse(dataStr) as { assetIds: string[] }
+                      if (parsed.assetIds && parsed.assetIds.length > 0) {
+                        assetIds = parsed.assetIds
+                      }
+                    }
+                    if (assetIds && assetIds.length > 0) {
+                      await moveAssetsToFolder(assetIds, folder.id)
+                    }
+                  } catch (err) {
+                    console.error('自适应视图文件夹拖拽移动素材失败:', err)
+                  }
+                  setInternalDragging(false)
+                }
+              }}
+            />
+          ))}
+
+          {filteredAssets.map((asset) => (
+            <AssetCard
+              key={asset.id}
+              asset={asset}
+              isSelected={selectedAssetIds.includes(asset.id)}
+              onClick={(event) => handleAssetClick(event, asset.id)}
+              onDoubleClick={() => setViewerAsset(asset, filteredAssets)}
+              onFavoriteClick={(event) => {
+                event.stopPropagation()
+                toggleFavorite(asset.id)
+              }}
+              onContextMenu={(event) => handleContextMenu(event, asset.id)}
+              thumbnailSize={thumbSize}
+              layoutMode="adaptive"
+              isEditing={editingAssetId === asset.id}
+              onRename={(newName) => handleRenameAsset(asset.id, newName)}
+              onCancelRename={() => setEditingAssetId(null)}
+            />
+          ))}
+        </div>
+      ) : layoutMode === 'grid' ? (
+        // 默认网格视图 (Grid Layout)
+        <div
+          className="grid justify-start gap-x-12 gap-y-8 animate-in fade-in duration-200"
           style={{ gridTemplateColumns: `repeat(auto-fill, ${thumbSize}px)` }}
         >
           {visibleFolders.map((folder) => (
@@ -1299,6 +1501,7 @@ export const AssetGrid: React.FC<AssetGridProps> = () => {
               }}
               onContextMenu={(event) => handleContextMenu(event, asset.id)}
               thumbnailSize={thumbSize}
+              layoutMode="grid"
               isEditing={editingAssetId === asset.id}
               onRename={(newName) => handleRenameAsset(asset.id, newName)}
               onCancelRename={() => setEditingAssetId(null)}

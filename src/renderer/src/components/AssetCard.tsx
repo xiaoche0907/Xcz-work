@@ -15,6 +15,7 @@ interface AssetCardProps {
   isEditing?: boolean
   onRename?: (newName: string) => void
   onCancelRename?: () => void
+  layoutMode?: 'waterfall' | 'grid' | 'adaptive' | 'list'
 }
 
 export const AssetCard: React.FC<AssetCardProps> = ({
@@ -27,7 +28,8 @@ export const AssetCard: React.FC<AssetCardProps> = ({
   thumbnailSize,
   isEditing,
   onRename,
-  onCancelRename
+  onCancelRename,
+  layoutMode = 'grid'
 }) => {
   const inputRef = React.useRef<HTMLInputElement>(null)
   React.useEffect(() => {
@@ -88,7 +90,19 @@ export const AssetCard: React.FC<AssetCardProps> = ({
   const showFileSize = useAppStore((state) => state.showFileSize)
   const showResolution = useAppStore((state) => state.showResolution)
 
-  const imageHeight = thumbnailSize
+  const isWaterfall = layoutMode === 'waterfall'
+  const isAdaptive = layoutMode === 'adaptive'
+
+  // 自适应模式下，高度固定为 thumbnailSize，宽度根据图片比例变化
+  // 瀑布流模式下，宽度固定为 thumbnailSize，高度根据图片比例变化
+  // 网格模式下，宽和高都固定为 thumbnailSize
+  const cardWidth = isAdaptive
+    ? Math.max(80, Math.min(320, Math.round(thumbnailSize * (asset.width / asset.height))))
+    : thumbnailSize
+
+  const imageHeight = isWaterfall
+    ? Math.max(80, Math.min(320, Math.round(thumbnailSize * (asset.height / asset.width))))
+    : thumbnailSize
 
   return (
     <div
@@ -122,7 +136,7 @@ export const AssetCard: React.FC<AssetCardProps> = ({
         isSelected ? 'bg-brand-50 ring-1 ring-brand-200' : 'hover:bg-app-hover'
       }`}
       data-asset-id={asset.id}
-      style={{ width: `${thumbnailSize}px` }}
+      style={{ width: `${cardWidth}px` }}
     >
       <div
         className="relative flex w-full items-center justify-center overflow-hidden rounded bg-[#F4F5F7]"
@@ -131,7 +145,7 @@ export const AssetCard: React.FC<AssetCardProps> = ({
         <img
           src={`media://${asset.thumbnailPath}`}
           alt={asset.fileName}
-          className="max-h-full max-w-full object-contain"
+          className={(isWaterfall || isAdaptive) ? "w-full h-full object-cover" : "max-h-full max-w-full object-contain"}
           loading="lazy"
           draggable={false}
         />
