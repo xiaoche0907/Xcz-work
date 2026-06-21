@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { X, Puzzle, User, Star, Settings, HardDrive, Keyboard, Globe, Sparkles, ShieldAlert } from 'lucide-react'
+import { X, Puzzle, Settings, HardDrive, Keyboard, Globe, Sparkles, ShieldAlert } from 'lucide-react'
 import { useAppStore } from '../store/useAppStore'
 
 const categories = [
@@ -98,8 +98,6 @@ const renderKeys = (keyStr: string) => {
 }
 
 type TabId =
-  | 'account'
-  | 'vip'
   | 'general'
   | 'file-cache'
   | 'shortcuts'
@@ -110,7 +108,7 @@ type TabId =
 
 export const PreferencesModal: React.FC = () => {
   const { isPreferencesModalOpen, setPreferencesModalOpen } = useAppStore()
-  const [activeTab, setActiveTab] = useState<TabId>('plugins')
+  const [activeTab, setActiveTab] = useState<TabId>('general')
 
   // 本地插件安装与启用模拟状态
   const [pluginsState, setPluginsState] = useState<
@@ -287,26 +285,7 @@ export const PreferencesModal: React.FC = () => {
             </div>
           </div>
         )
-      case 'account':
-        return (
-          <div className="space-y-4">
-            <h3 className="text-[14px] font-bold text-gray-800">账户信息</h3>
-            <div className="rounded-lg border border-app-border bg-white p-4 space-y-3">
-              <div className="flex justify-between py-1 border-b border-gray-100">
-                <span className="text-gray-400 text-[11px]">用户名</span>
-                <span className="text-gray-800 font-semibold">xiaoc_design</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-gray-100">
-                <span className="text-gray-400 text-[11px]">账号类型</span>
-                <span className="text-amber-600 font-bold flex items-center gap-1">专业版 VIP</span>
-              </div>
-              <div className="flex justify-between py-1">
-                <span className="text-gray-400 text-[11px]">云空间已用</span>
-                <span className="text-gray-700">12.8 GB / 100 GB</span>
-              </div>
-            </div>
-          </div>
-        )
+
       case 'shortcuts':
         return (
           <div className="space-y-5 pb-4 select-none flex flex-col h-full">
@@ -345,8 +324,6 @@ export const PreferencesModal: React.FC = () => {
   }
 
   const tabs: { id: TabId; label: string; icon: React.ReactNode; group?: string }[] = [
-    { id: 'account', label: '账号', icon: <User size={13} /> },
-    { id: 'vip', label: '会员空间', icon: <Star size={13} /> },
     { id: 'general', label: '通用', icon: <Settings size={13} />, group: '软件设置' },
     { id: 'file-cache', label: '文件与缓存', icon: <HardDrive size={13} /> },
     { id: 'shortcuts', label: '快捷键', icon: <Keyboard size={13} /> },
