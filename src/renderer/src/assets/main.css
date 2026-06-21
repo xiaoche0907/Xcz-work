@@ -1,0 +1,191 @@
+@import 'tailwindcss';
+@config '../../../../tailwind.config.js';
+@source '../**/*.{ts,tsx,html}';
+
+:root {
+  --app-blue: #1e8bff;
+  --app-blue-dark: #1455c8;
+  --app-blue-soft: #eaf4ff;
+  --app-sidebar: #f3f4f6;
+  --app-border: #e6e8ec;
+  --app-hover: #e9eaed;
+  --app-selected: #e4e5e8;
+  --app-text: #111827;
+  --app-muted: #8a9099;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family:
+    'Microsoft YaHei UI',
+    'Segoe UI',
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  background: #ffffff;
+  color: var(--app-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:focus,
+button:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+input[type='text'],
+input[type='password'],
+textarea,
+select {
+  border: 1px solid var(--app-border);
+  background: #ffffff;
+  color: var(--app-text);
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+input[type='text']:focus,
+input[type='password']:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--app-blue);
+  box-shadow: 0 0 0 3px rgba(30, 139, 255, 0.14);
+  outline: none;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d8dce3;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #bfc5ce;
+}
+
+.app-icon-button {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  color: #6b7280;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.app-icon-button:hover {
+  background: var(--app-hover);
+  color: var(--app-text);
+}
+
+.app-icon-button.active {
+  background: var(--app-selected);
+  color: var(--app-text);
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+input[type='range'].app-slider {
+  appearance: none;
+  width: 78px;
+  height: 14px;
+  background: transparent;
+}
+
+input[type='range'].app-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 8px;
+  height: 8px;
+  margin-top: -3px;
+  border-radius: 999px;
+  background: #111827;
+  cursor: pointer;
+  transition: transform 100ms ease;
+}
+
+input[type='range'].app-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+input[type='range'].app-slider::-webkit-slider-runnable-track {
+  height: 2px;
+  border-radius: 999px;
+  background: #d9dde4;
+}
+
+input[type='range'].app-slider::-moz-range-track {
+  height: 2px;
+  border-radius: 999px;
+  background: #d9dde4;
+}
+
+input[type='range'].app-slider::-moz-range-thumb {
+  width: 8px;
+  height: 8px;
+  border: 0;
+  border-radius: 999px;
+  background: #111827;
+  cursor: pointer;
+}
+
+/* 美化右键菜单滚动条，使其极其隐蔽和精致 */
+.menu-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.menu-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.menu-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 99px;
+}
+
+.menu-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.24);
+}
+
